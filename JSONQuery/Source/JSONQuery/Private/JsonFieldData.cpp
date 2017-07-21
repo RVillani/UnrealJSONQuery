@@ -1,5 +1,8 @@
 // Copyright 1998-2013 Epic Games, Inc. All Rights Reserved.
-#include "JSONQueryPrivatePCH.h"
+#include "JsonFieldData.h"
+
+//#include "Map.h"
+#include "Engine/Engine.h"
 
 //////////////////////////////////////////////////////////////////////////
 // UJsonFieldData
@@ -12,10 +15,10 @@ UJsonFieldData::UJsonFieldData()
 	Reset();
 }
 
-UJsonFieldData* UJsonFieldData::GetRequest(UObject* WorldContextObject, const FString &url)
+UJsonFieldData* UJsonFieldData::GetRequest(const FString &url)
 {
 	// Create new page data for the response
-	UJsonFieldData* dataObj = Create(WorldContextObject);
+	UJsonFieldData* dataObj = Create();
 
 	// Create the HTTP request
 	TSharedRef< IHttpRequest > HttpRequest = FHttpModule::Get().CreateRequest();
@@ -32,14 +35,10 @@ UJsonFieldData* UJsonFieldData::GetRequest(UObject* WorldContextObject, const FS
 	return dataObj;
 }
 
-UJsonFieldData* UJsonFieldData::Create(UObject* WorldContextObject)
+UJsonFieldData* UJsonFieldData::Create()
 {
-	// Get the world object from the context
-	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject);
-
 	// Construct the object and return it
 	UJsonFieldData* fieldData = NewObject<UJsonFieldData>();
-	fieldData->contextObject = WorldContextObject;
 	return fieldData;
 }
 
@@ -141,7 +140,7 @@ void UJsonFieldData::WriteObject(TSharedRef<TJsonWriter<TCHAR>> writer, FString 
 	}
 }
 
-void UJsonFieldData::PostRequest(UObject* WorldContextObject, const FString &url)
+void UJsonFieldData::PostRequest(const FString &url)
 {
 	FString outStr = ToString();
 
@@ -344,13 +343,13 @@ UJsonFieldData* UJsonFieldData::GetObject(const FString& key, bool& success)
 	if (!Data->TryGetObjectField(*key, outPtr))
 	{
 		// Throw an error and return NULL when the key could not be found
-		UE_LOG(LogJson, Error, TEXT("Entry '%s' not found in the field data!"), *key);
+		UE_LOG(JSONQueryLog, Error, TEXT("Entry '%s' not found in the field data!"), *key);
 		success = false;
 		return NULL;
 	}
 
 	// Create a new field data object and assign the data
-	fieldObj = UJsonFieldData::Create(contextObject);
+	fieldObj = UJsonFieldData::Create();
 	fieldObj->Data = *outPtr;
 
 	// Return the newly created object
@@ -376,7 +375,7 @@ TArray<FString> UJsonFieldData::GetStringArray(const FString& key, bool& success
 	else
 	{
 		// Throw an error when the entry could not be found in the field data
-		UE_LOG(LogJson, Error, TEXT("Array entry '%s' not found in the field data!"), *key);
+		UE_LOG(JSONQueryLog, Error, TEXT("Array entry '%s' not found in the field data!"), *key);
 		success = false;
 	}
 
@@ -402,7 +401,7 @@ TArray<bool> UJsonFieldData::GetBoolArray(const FString& key, bool& success)
 	else
 	{
 		// Throw an error when the entry could not be found in the field data
-		UE_LOG(LogJson, Error, TEXT("Array entry '%s' not found in the field data!"), *key);
+		UE_LOG(JSONQueryLog, Error, TEXT("Array entry '%s' not found in the field data!"), *key);
 		success = false;
 	}
 
@@ -428,7 +427,7 @@ TArray<int32> UJsonFieldData::GetIntArray(const FString& key, bool& success)
 	else
 	{
 		// Throw an error when the entry could not be found in the field data
-		UE_LOG(LogJson, Error, TEXT("Array entry '%s' not found in the field data!"), *key);
+		UE_LOG(JSONQueryLog, Error, TEXT("Array entry '%s' not found in the field data!"), *key);
 		success = false;
 	}
 
@@ -454,7 +453,7 @@ TArray<float> UJsonFieldData::GetFloatArray(const FString& key, bool& success)
 	else
 	{
 		// Throw an error when the entry could not be found in the field data
-		UE_LOG(LogJson, Error, TEXT("Array entry '%s' not found in the field data!"), *key);
+		UE_LOG(JSONQueryLog, Error, TEXT("Array entry '%s' not found in the field data!"), *key);
 		success = false;
 	}
 
@@ -462,7 +461,7 @@ TArray<float> UJsonFieldData::GetFloatArray(const FString& key, bool& success)
 	return array;
 }
 
-TArray<UJsonFieldData*> UJsonFieldData::GetObjectArray(UObject* WorldContextObject, const FString& key, bool& success)
+TArray<UJsonFieldData*> UJsonFieldData::GetObjectArray(const FString& key, bool& success)
 {
 	TArray<UJsonFieldData*> objectArray;
 
@@ -473,7 +472,7 @@ TArray<UJsonFieldData*> UJsonFieldData::GetObjectArray(UObject* WorldContextObje
 		// Iterate through the input array and create new post data objects for every entry and add them to the objectArray
 		for (int32 i = 0; i < arrayPtr->Num(); i++)
 		{
-			UJsonFieldData* pageData = Create(WorldContextObject); 
+			UJsonFieldData* pageData = Create(); 
 			pageData->Data = (*arrayPtr)[i]->AsObject();
 			objectArray.Add(pageData);
 		}
@@ -482,7 +481,7 @@ TArray<UJsonFieldData*> UJsonFieldData::GetObjectArray(UObject* WorldContextObje
 	else
 	{
 		// Throw an error, since the value with the supplied key could not be found
-		UE_LOG(LogJson, Error, TEXT("Array entry '%s' not found in the field data!"), *key);
+		UE_LOG(JSONQueryLog, Error, TEXT("Array entry '%s' not found in the field data!"), *key);
 		success = false;
 	}
 
@@ -490,7 +489,7 @@ TArray<UJsonFieldData*> UJsonFieldData::GetObjectArray(UObject* WorldContextObje
 	return objectArray;
 }
 
-TArray<FString> UJsonFieldData::GetObjectKeys(UObject* WorldContextObject)
+TArray<FString> UJsonFieldData::GetObjectKeys()
 {
 	TArray<FString> stringArray;
 
@@ -510,7 +509,7 @@ FString UJsonFieldData::GetString(const FString& key, bool& success) const
 	// If the current post data isn't valid, return an empty string
 	if (!Data->TryGetStringField(*key, outString))
 	{
-		UE_LOG(LogJson, Error, TEXT("String entry '%s' not found in the field data!"), *key);
+		UE_LOG(JSONQueryLog, Error, TEXT("String entry '%s' not found in the field data!"), *key);
 		success = false;
 		return "";
 	}
@@ -526,7 +525,7 @@ bool UJsonFieldData::GetBool(const FString& key, bool& success) const
 	// If the current post data isn't valid, return an empty string
 	if (!Data->TryGetBoolField(*key, value))
 	{
-		UE_LOG(LogJson, Error, TEXT("Boolean entry '%s' not found in the field data!"), *key);
+		UE_LOG(JSONQueryLog, Error, TEXT("Boolean entry '%s' not found in the field data!"), *key);
 		success = false;
 		return false;
 	}
@@ -542,7 +541,7 @@ int32 UJsonFieldData::GetInt(const FString& key, bool& success) const
 	// If the current post data isn't valid, return an empty string
 	if (!Data->TryGetNumberField(*key, value))
 	{
-		UE_LOG(LogJson, Error, TEXT("Number entry '%s' not found in the field data!"), *key);
+		UE_LOG(JSONQueryLog, Error, TEXT("Number entry '%s' not found in the field data!"), *key);
 		success = false;
 		return 0;
 	}
@@ -558,7 +557,7 @@ float UJsonFieldData::GetFloat(const FString& key, bool& success) const
 	// If the current post data isn't valid, return an empty string
 	if (!Data->TryGetNumberField(*key, value))
 	{
-		UE_LOG(LogJson, Error, TEXT("Number entry '%s' not found in the field data!"), *key);
+		UE_LOG(JSONQueryLog, Error, TEXT("Number entry '%s' not found in the field data!"), *key);
 		success = false;
 		return 0.0f;
 	}
@@ -572,7 +571,7 @@ bool UJsonFieldData::GetIsNull(const FString& key, bool& success) const
 	// If the current post data isn't valid, return an empty string
 	if (!Data->HasField(key))
 	{
-		UE_LOG(LogJson, Error, TEXT("Number entry '%s' not found in the field data!"), *key);
+		UE_LOG(JSONQueryLog, Error, TEXT("Number entry '%s' not found in the field data!"), *key);
 		success = false;
 		return false;
 	}
@@ -603,7 +602,7 @@ bool UJsonFieldData::FromString(const FString& dataString)
 
 	if (!isDeserialized || !Data.IsValid())
 	{
-		UE_LOG(LogJson, Error, TEXT("JSON data is invalid! Input:\n'%s'"), *dataString);
+		UE_LOG(JSONQueryLog, Error, TEXT("JSON data is invalid! Input:\n'%s'"), *dataString);
 		return false;
 	}
 
@@ -616,7 +615,7 @@ bool UJsonFieldData::FromFile(const FString& FilePath) {
 	FString FullJsonPath = FPaths::ConvertRelativePathToFull(FPaths::GameContentDir() / FilePath);
 	if (!FFileHelper::LoadFileToString(Result, *FullJsonPath))
 	{
-		UE_LOG(LogJson, Error, TEXT("Can't load json data from %s"), *FilePath);
+		UE_LOG(JSONQueryLog, Error, TEXT("Can't load json data from %s"), *FilePath);
 		return false;
 	}
 	return FromString(Result);
@@ -627,7 +626,7 @@ void UJsonFieldData::OnReady(FHttpRequestPtr Request, FHttpResponsePtr Response,
 	RemoveFromRoot();
 	if (!bWasSuccessful)
 	{
-		UE_LOG(LogJson, Error, TEXT("Response was invalid! Please check the URL."));
+		UE_LOG(JSONQueryLog, Error, TEXT("Response was invalid! Please check the URL."));
 
 		// Broadcast the failed event
 		OnGetResult.Broadcast(false, this, EJSONResult::HttpFailed);

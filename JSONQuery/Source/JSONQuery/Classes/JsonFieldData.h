@@ -1,5 +1,10 @@
 // Copyright 1998-2013 Epic Games, Inc. All Rights Reserved.
 #pragma once
+
+#include "JSONQueryModule.h"
+#include "CoreMinimal.h"
+#include "Http.h"
+#include "Json.h"
 #include "JsonFieldData.generated.h"
 
 /**
@@ -56,8 +61,6 @@ private:
 	void WriteObject(TSharedRef<TJsonWriter<TCHAR>> writer, FString key, FJsonValue* value);
 
 public:
-	UObject* contextObject;
-
 	/* The actual field data */
 	TSharedPtr<FJsonObject> Data;
 
@@ -92,12 +95,10 @@ public:
 	/**
 	* Create a new instance of the UJsonFieldData class, for use in Blueprint graphs.
 	*
-	* @param	WorldContextObject		The current context
-	*
 	* @return	A pointer to the newly created post data
 	*/
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Create JSON", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"), Category = "JSON")
-	static UJsonFieldData* Create(UObject* WorldContextObject);
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Create JSON", Keywords = "new"), Category = "JSON")
+	static UJsonFieldData* Create();
 
 	/**
 	* Adds the supplied string to the post data, under the given key
@@ -321,7 +322,7 @@ public:
 	/**
 	* Gets a float array from the post data with the given key
 	*
-	* @param	key						Key
+	* @param	key			Key
 	* @param	success		Was the field found?
 	*
 	* @return	The requested array of floats
@@ -332,13 +333,12 @@ public:
 	/**
 	* Gets the post data object from the post data with the given key
 	*
-	* @param	WorldContextObject		Array of strings
 	* @param	key						Key
 	* @param	success		Was the object field found?
 	*
 	* @return	The object itself
 	*/
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Object Field", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"), Category = "JSON")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Object Field"), Category = "JSON")
 	UJsonFieldData* GetObject(const FString& key, bool& success);
 
 	/**
@@ -349,8 +349,8 @@ public:
 	*
 	* @return	The requested post data objects
 	*/
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Object Array Field", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"), Category = "JSON")
-	TArray<UJsonFieldData*> GetObjectArray(UObject* WorldContextObject, const FString& key, bool& success);
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Object Array Field"), Category = "JSON")
+	TArray<UJsonFieldData*> GetObjectArray(const FString& key, bool& success);
 
 	/**
 	* Gets the keys from the supplied object
@@ -359,8 +359,8 @@ public:
 	*
 	* @return	Array of keys
 	*/
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Object Keys", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"), Category = "JSON")
-	TArray<FString> GetObjectKeys(UObject* WorldContextObject);
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Object Keys"), Category = "JSON")
+	TArray<FString> GetObjectKeys();
 
 	/**
 	* Sets the fields from the supplied JSON string
@@ -383,11 +383,10 @@ public:
 	/**
 	* Posts the current request data to the internet
 	*
-	* @param	WorldContextObject		The current context
-	* @param	url						The URL to post to
+	* @param	url				The URL to post to
 	*/
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Post JSON Request", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"), Category = "JSON")
-	void PostRequest(UObject* WorldContextObject, const FString& url);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Post JSON Request"), Category = "JSON")
+	void PostRequest(const FString& url);
 
 	/**
 	* Posts the current request data to the internet, together with a file
@@ -401,11 +400,10 @@ public:
 	/**
 	* Grabs a page from the internet
 	*
-	* @param	WorldContextObject		The current context
-	* @param	url						The URL to request
+	* @param	url				The URL to request
 	*
 	* @return	The newly created post data that will be filled with the url response.
 	*/
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get JSON Request", HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"), Category = "JSON")
-	static UJsonFieldData* GetRequest(UObject* WorldContextObject, const FString& url);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get JSON Request"), Category = "JSON")
+	static UJsonFieldData* GetRequest(const FString& url);
 };

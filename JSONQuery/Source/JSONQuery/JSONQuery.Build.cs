@@ -3,9 +3,11 @@ using UnrealBuildTool;
 
 public class JSONQuery : ModuleRules
 {
-	public JSONQuery(TargetInfo Target)
+	public JSONQuery(ReadOnlyTargetRules Rules) : base(Rules)
 	{
-        PublicDependencyModuleNames.AddRange(
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
+		PublicDependencyModuleNames.AddRange(
 			new string[] { 
 				"Core", 
 				"CoreUObject",
