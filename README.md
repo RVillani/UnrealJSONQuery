@@ -5,6 +5,8 @@ Adds nodes for Blueprint communication with servers using JSON.
 
 ### Installation
 
+You can clone this repo to your computer and compile it with your project or download a ZIP from the [releases](https://github.com/RVillani/UnrealJSONQuery/releases) page with the binaries. **Current Unreal Engine supported version is 4.16.2**
+
 1. Close the Project.
 1. Create a folder named **Plugins** in your project folder (if there isn't one).
 1. Copy the folder **JSONQuery** into your **Plugins** folder.
@@ -34,3 +36,7 @@ In the [releases](https://github.com/RVillani/UnrealJSONQuery/releases) ZIP file
 
 The plugin will always display the received answer from the server on the **Output Log** window. Even if it's not a valid JSON, in which case it'll be highlighted in red.  
 *If you don't have the Output Log window opened, find it on **Window > Developer Tools > Output Log**.*
+
+## Support
+
+I strongly advice you to go to the [forum thread](https://forums.unrealengine.com/showthread.php?7045-JSON-Query&goto=newpost) for help, as it's already filled with people using the plugin and helping each other.
