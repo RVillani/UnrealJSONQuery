@@ -4,7 +4,6 @@
 	"FriendlyName" : "JSON Query",
 	"Version" : 6,
   "VersionName": "1.0.0",
-  "EngineVersion": "4.16.0",
 	"CreatedBy" : "Rodrigo Villani",
 	"CreatedByURL" : "http://rvillani.com/",
 	"Description" : "Exposes nodes to Blueprint that allow you to easily post and request pages on webservers through the JSON protocol.",
