@@ -5,7 +5,7 @@ Adds nodes for Blueprint communication with servers using JSON.
 
 ### Installation
 
-You can clone this repo to your computer and compile it with your project or download a ZIP from the [releases](https://github.com/RVillani/UnrealJSONQuery/releases) page with the binaries. **Current Unreal Engine supported version is 4.16.2**
+You can clone this repo to your computer and compile it with your project or download a ZIP from the [releases](https://github.com/RVillani/UnrealJSONQuery/releases) page with the binaries. **Current Unreal Engine supported version is 4.19.2**
 
 1. Close the Project.
 1. Create a folder named **Plugins** in your project folder (if there isn't one).
