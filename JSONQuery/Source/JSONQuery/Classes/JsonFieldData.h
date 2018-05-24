@@ -371,14 +371,14 @@ public:
 	bool FromString(const FString& dataString);
 
 	/**
-	* Creates new data from the
+	* Loads JSON data from a file relative to the game folder
 	*
-	* @param	FilePath	Text Json File in game content folder
+	* @param	FilePath	JSON file path relative to game folder
 	*
-	* @return	JsonFieldData Object
+	* @return	JsonFieldData Object if successful or null otherwise
 	*/
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "From File"), Category = "JSON")
-	bool FromFile(const FString& FilePath);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "JSON From File"), Category = "JSON")
+	static UJsonFieldData* FromFile(const FString& FilePath);
 
 	/**
 	* Posts the current request data to the internet

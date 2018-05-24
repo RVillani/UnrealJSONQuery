@@ -609,16 +609,18 @@ bool UJsonFieldData::FromString(const FString& dataString)
 	return true;
 }
 
-bool UJsonFieldData::FromFile(const FString& FilePath) {
-
+UJsonFieldData* UJsonFieldData::FromFile(const FString& FilePath)
+{
 	FString Result;
-	FString FullJsonPath = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir() / FilePath);
+	FString FullJsonPath = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() / FilePath);
 	if (!FFileHelper::LoadFileToString(Result, *FullJsonPath))
 	{
-		UE_LOG(JSONQueryLog, Error, TEXT("Can't load json data from %s"), *FilePath);
-		return false;
+		UE_LOG(JSONQueryLog, Error, TEXT("Can't load json data from %s"), *FullJsonPath);
+		return nullptr;
 	}
-	return FromString(Result);
+	UJsonFieldData* JSON(Create());
+	JSON->FromString(Result);
+	return JSON;
 }
 
 void UJsonFieldData::OnReady(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
