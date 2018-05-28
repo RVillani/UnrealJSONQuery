@@ -18,6 +18,16 @@ enum class EJSONResult : uint8
 	JSONParsingFailed
 };
 
+/**
+* Possible location to read the JSON file from
+*/
+UENUM(BlueprintType, Category = "JSON")
+enum class EFolder : uint8
+{
+	Content,
+	Project
+};
+
 // Generate a delegate for the OnGetResult event
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnGetResult, const bool, bSuccess, class UJsonFieldData*, JSON, const EJSONResult, Status);
 
@@ -61,6 +71,29 @@ private:
 	void WriteObject(TSharedRef<TJsonWriter<TCHAR>> writer, FString key, FJsonValue* value);
 
 public:
+	/************************************************************************/
+	/*							STATICS                                     */
+	/************************************************************************/
+
+	/**
+	* Create a new instance of the UJsonFieldData class, for use in Blueprint graphs.
+	*
+	* @return	A pointer to the newly created post data
+	*/
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Create JSON", Keywords = "new"), Category = "JSON")
+	static UJsonFieldData* Create();
+
+	/**
+	* Loads JSON data from a file relative to the game folder
+	*
+	* @param	FilePath	JSON file path relative to folder passed as RelativeTo
+	* @param	RelativeTo	The File path will be relative to this path
+	*
+	* @return	JsonFieldData Object if successful or null otherwise
+	*/
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "JSON From File"), Category = "JSON")
+	static UJsonFieldData* FromFile(const FString FilePath, const EFolder RelativeTo);
+
 	/* The actual field data */
 	TSharedPtr<FJsonObject> Data;
 
@@ -91,14 +124,6 @@ public:
 	*/
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Check Field Exists"), Category = "JSON")
 	bool HasField(const FString& key);
-
-	/**
-	* Create a new instance of the UJsonFieldData class, for use in Blueprint graphs.
-	*
-	* @return	A pointer to the newly created post data
-	*/
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Create JSON", Keywords = "new"), Category = "JSON")
-	static UJsonFieldData* Create();
 
 	/**
 	* Adds the supplied string to the post data, under the given key
@@ -369,16 +394,6 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "From String"), Category = "JSON")
 	bool FromString(const FString& dataString);
-
-	/**
-	* Loads JSON data from a file relative to the game folder
-	*
-	* @param	FilePath	JSON file path relative to game folder
-	*
-	* @return	JsonFieldData Object if successful or null otherwise
-	*/
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "JSON From File"), Category = "JSON")
-	static UJsonFieldData* FromFile(const FString& FilePath);
 
 	/**
 	* Posts the current request data to the internet

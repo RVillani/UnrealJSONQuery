@@ -42,6 +42,27 @@ UJsonFieldData* UJsonFieldData::Create()
 	return fieldData;
 }
 
+UJsonFieldData* UJsonFieldData::FromFile(const FString FilePath, EFolder RelativeTo)
+{
+	FString Result;
+	FString StartPath;
+	switch (RelativeTo)
+	{
+	case EFolder::Content: StartPath = FPaths::ProjectContentDir(); break;
+	case EFolder::Project:
+	default: StartPath = FPaths::ProjectDir(); break;
+	}
+	FString FullJsonPath = FPaths::ConvertRelativePathToFull(StartPath / FilePath);
+	if (!FFileHelper::LoadFileToString(Result, *FullJsonPath))
+	{
+		UE_LOG(JSONQueryLog, Error, TEXT("Can't load json data from %s"), *FullJsonPath);
+		return nullptr;
+	}
+	UJsonFieldData* JSON(Create());
+	JSON->FromString(Result);
+	return JSON;
+}
+
 FString UJsonFieldData::CreateURL(FString inputURL)
 {
 	if (!inputURL.StartsWith("http"))
@@ -607,20 +628,6 @@ bool UJsonFieldData::FromString(const FString& dataString)
 	}
 
 	return true;
-}
-
-UJsonFieldData* UJsonFieldData::FromFile(const FString& FilePath)
-{
-	FString Result;
-	FString FullJsonPath = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() / FilePath);
-	if (!FFileHelper::LoadFileToString(Result, *FullJsonPath))
-	{
-		UE_LOG(JSONQueryLog, Error, TEXT("Can't load json data from %s"), *FullJsonPath);
-		return nullptr;
-	}
-	UJsonFieldData* JSON(Create());
-	JSON->FromString(Result);
-	return JSON;
 }
 
 void UJsonFieldData::OnReady(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
