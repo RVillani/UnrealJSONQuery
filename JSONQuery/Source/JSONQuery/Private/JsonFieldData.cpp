@@ -1,7 +1,7 @@
 // Copyright 1998-2013 Epic Games, Inc. All Rights Reserved.
 #include "JsonFieldData.h"
 
-//#include "Map.h"
+#include "JSONQueryModule.h"
 #include "Engine/Engine.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ UJsonFieldData* UJsonFieldData::GetRequest(const FString &url)
 	UJsonFieldData* dataObj = Create();
 
 	// Create the HTTP request
-	TSharedRef< IHttpRequest > HttpRequest = FHttpModule::Get().CreateRequest();
+	TSharedRef< IHttpRequest, ESPMode::ThreadSafe > HttpRequest = FHttpModule::Get().CreateRequest();
 	HttpRequest->SetVerb("GET");
 	HttpRequest->SetURL(CreateURL(url));
 	HttpRequest->OnProcessRequestComplete().BindUObject(dataObj, &UJsonFieldData::OnReady);
@@ -169,7 +169,7 @@ void UJsonFieldData::PostRequest(const FString &url)
 	UE_LOG(LogTemp, Warning, TEXT("Post data: %s"), *outStr);
 
 	// Create the post request with the generated data
-	TSharedRef< IHttpRequest > HttpRequest = FHttpModule::Get().CreateRequest();
+	TSharedRef< IHttpRequest, ESPMode::ThreadSafe > HttpRequest = FHttpModule::Get().CreateRequest();
 	HttpRequest->SetVerb("POST");
 	HttpRequest->SetHeader("User-Agent", "UnrealEngine4Client/1.0");
 	HttpRequest->SetURL(CreateURL(url));
@@ -220,7 +220,7 @@ void UJsonFieldData::PostRequestWithFile(FString FilePath, const FString &Url)
 	Buffer.Append((uint8*)(ANSICHAR*)Converter2.Get(), Converter2.Length());
 
 	// Create the post request with the generated data
-	TSharedRef< IHttpRequest > HttpRequest = FHttpModule::Get().CreateRequest();
+	TSharedRef< IHttpRequest, ESPMode::ThreadSafe > HttpRequest = FHttpModule::Get().CreateRequest();
 	HttpRequest->SetVerb("POST");
 	HttpRequest->SetHeader("User-Agent", "UnrealEngine4Client/1.0");
 	HttpRequest->SetHeader("Content-Type", FString("multipart/form-data; boundary=") + Boundary);

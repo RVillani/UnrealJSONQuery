@@ -1,7 +1,6 @@
 // Copyright 1998-2013 Epic Games, Inc. All Rights Reserved.
 #pragma once
 
-#include "JSONQueryModule.h"
 #include "CoreMinimal.h"
 #include "Http.h"
 #include "Json.h"
