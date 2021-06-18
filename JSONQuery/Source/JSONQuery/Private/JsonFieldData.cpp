@@ -8,8 +8,8 @@
 // UJsonFieldData
 
 /**
-* Constructor
-*/
+ * Constructor
+ */
 UJsonFieldData::UJsonFieldData()
 {
 	Reset();
@@ -52,7 +52,7 @@ UJsonFieldData* UJsonFieldData::FromFile(const FString FilePath, EFolder Relativ
 	case EFolder::Project:
 	default: StartPath = FPaths::ProjectDir(); break;
 	}
-	FString FullJsonPath = FPaths::ConvertRelativePathToFull(StartPath / FilePath);
+	const FString FullJsonPath = FPaths::ConvertRelativePathToFull(StartPath / FilePath);
 	if (!FFileHelper::LoadFileToString(Result, *FullJsonPath))
 	{
 		UE_LOG(JSONQueryLog, Error, TEXT("Can't load json data from %s"), *FullJsonPath);
@@ -163,7 +163,7 @@ void UJsonFieldData::WriteObject(TSharedRef<TJsonWriter<TCHAR>> writer, FString 
 
 void UJsonFieldData::PostRequest(const FString &url)
 {
-	FString outStr = ToString();
+	const FString outStr = ToString();
 
 	// Log the post data for the user (OPTIONAL)
 	UE_LOG(LogTemp, Warning, TEXT("Post data: %s"), *outStr);
@@ -197,7 +197,7 @@ void UJsonFieldData::PostRequestWithFile(FString FilePath, const FString &Url)
 	TArray<uint8> Buffer;
 
 	// Add the JSON as a POST var named 'json'
-	FString JSONStr = ToString();
+	const FString JSONStr = ToString();
 	FString Text = FString("\r\n--") + Boundary + "\r\n"
 		+ "Content-Type: text/plain; charset=\"utf-8\"\r\n"
 		+ "Content-disposition: form-data; name=\"json\"\r\n\r\n"
@@ -210,14 +210,14 @@ void UJsonFieldData::PostRequestWithFile(FString FilePath, const FString &Url)
 	Text += FString("\r\n--") + Boundary + "\r\n"
 		+ "Content-Type: application/octet-stream\r\n"
 		+ "Content-disposition: form-data; name=\"file\"; filename=\"" + Filename + "\"\r\n\r\n";
-	FTCHARToUTF8 Converter1(*Text);
-	Buffer.Append((uint8*)(ANSICHAR*)Converter1.Get(), Converter1.Length());
+	const FTCHARToUTF8 Converter1(*Text);
+	Buffer.Append(reinterpret_cast<uint8*>(const_cast<ANSICHAR*>(Converter1.Get())), Converter1.Length());
 	Buffer.Append(RawFileData);
 
 	// end POST variables
 	Text = FString("\r\n--") + Boundary + "--\r\n";
-	FTCHARToUTF8 Converter2(*Text);
-	Buffer.Append((uint8*)(ANSICHAR*)Converter2.Get(), Converter2.Length());
+	const FTCHARToUTF8 Converter2(*Text);
+	Buffer.Append(reinterpret_cast<uint8*>(const_cast<ANSICHAR*>(Converter2.Get())), Converter2.Length());
 
 	// Create the post request with the generated data
 	TSharedRef< IHttpRequest, ESPMode::ThreadSafe > HttpRequest = FHttpModule::Get().CreateRequest();
@@ -262,7 +262,7 @@ UJsonFieldData* UJsonFieldData::SetInt(const FString& key, const int32 value)
 
 UJsonFieldData* UJsonFieldData::SetNull(const FString& key)
 {
-	Data->SetObjectField(*key, NULL);
+	Data->SetObjectField(*key, nullptr);
 	return this;
 }
 
@@ -272,7 +272,7 @@ UJsonFieldData* UJsonFieldData::SetObject(const FString& key, const UJsonFieldDa
 	return this;
 }
 
-UJsonFieldData* UJsonFieldData::SetObjectArray(const FString& key, const TArray<UJsonFieldData*> objectData)
+UJsonFieldData* UJsonFieldData::SetObjectArray(const FString& key, const TArray<UJsonFieldData*>& objectData)
 {
 	TArray<TSharedPtr<FJsonValue>> *dataArray = new TArray<TSharedPtr<FJsonValue>>();
 
@@ -285,7 +285,7 @@ UJsonFieldData* UJsonFieldData::SetObjectArray(const FString& key, const TArray<
 	return this;
 }
 
-UJsonFieldData* UJsonFieldData::SetStringArray(const FString& key, const TArray<FString> stringData)
+UJsonFieldData* UJsonFieldData::SetStringArray(const FString& key, const TArray<FString>& stringData)
 {
 	TArray<TSharedPtr<FJsonValue>> *dataArray = new TArray<TSharedPtr<FJsonValue>>();
 
@@ -299,7 +299,7 @@ UJsonFieldData* UJsonFieldData::SetStringArray(const FString& key, const TArray<
 	return this;
 }
 
-UJsonFieldData* UJsonFieldData::SetBoolArray(const FString& key, const TArray<bool> data)
+UJsonFieldData* UJsonFieldData::SetBoolArray(const FString& key, const TArray<bool>& data)
 {
 	TArray<TSharedPtr<FJsonValue>> *dataArray = new TArray<TSharedPtr<FJsonValue>>();
 
@@ -313,7 +313,7 @@ UJsonFieldData* UJsonFieldData::SetBoolArray(const FString& key, const TArray<bo
 	return this;
 }
 
-UJsonFieldData* UJsonFieldData::SetFloatArray(const FString& key, const TArray<float> data)
+UJsonFieldData* UJsonFieldData::SetFloatArray(const FString& key, const TArray<float>& data)
 {
 	TArray<TSharedPtr<FJsonValue>> *dataArray = new TArray<TSharedPtr<FJsonValue>>();
 
@@ -327,7 +327,7 @@ UJsonFieldData* UJsonFieldData::SetFloatArray(const FString& key, const TArray<f
 	return this;
 }
 
-UJsonFieldData* UJsonFieldData::SetIntArray(const FString& key, const TArray<int32> data)
+UJsonFieldData* UJsonFieldData::SetIntArray(const FString& key, const TArray<int32>& data)
 {
 	TArray<TSharedPtr<FJsonValue>> *dataArray = new TArray<TSharedPtr<FJsonValue>>();
 
@@ -357,25 +357,23 @@ UJsonFieldData* UJsonFieldData::SetNullArray(const FString& key, const int32& le
 
 UJsonFieldData* UJsonFieldData::GetObject(const FString& key, bool& success)
 {
-	UJsonFieldData* fieldObj = NULL;
-
 	// Try to get the object field from the data
 	const TSharedPtr<FJsonObject> *outPtr;
 	if (!Data->TryGetObjectField(*key, outPtr))
 	{
-		// Throw an error and return NULL when the key could not be found
+		// Throw an error and return nullptr when the key could not be found
 		UE_LOG(JSONQueryLog, Error, TEXT("Entry '%s' not found in the field data!"), *key);
 		success = false;
-		return NULL;
+		return nullptr;
 	}
 
 	// Create a new field data object and assign the data
-	fieldObj = UJsonFieldData::Create();
-	fieldObj->Data = *outPtr;
+	UJsonFieldData* FieldObj = UJsonFieldData::Create();
+	FieldObj->Data = *outPtr;
 
 	// Return the newly created object
 	success = true;
-	return fieldObj;
+	return FieldObj;
 }
 
 TArray<FString> UJsonFieldData::GetStringArray(const FString& key, bool& success)
@@ -510,7 +508,7 @@ TArray<UJsonFieldData*> UJsonFieldData::GetObjectArray(const FString& key, bool&
 	return objectArray;
 }
 
-TArray<FString> UJsonFieldData::GetObjectKeys()
+TArray<FString> UJsonFieldData::GetObjectKeys() const
 {
 	TArray<FString> stringArray;
 
@@ -616,10 +614,10 @@ void UJsonFieldData::Reset()
 
 bool UJsonFieldData::FromString(const FString& dataString)
 {
-	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(dataString);
+	const TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(dataString);
 
 	// Deserialize the JSON data
-	bool isDeserialized = FJsonSerializer::Deserialize(JsonReader, Data);
+	const bool isDeserialized = FJsonSerializer::Deserialize(JsonReader, Data);
 
 	if (!isDeserialized || !Data.IsValid())
 	{
@@ -652,7 +650,7 @@ void UJsonFieldData::OnReady(FHttpRequestPtr Request, FHttpResponsePtr Response,
 	OnGetResult.Broadcast(true, this, EJSONResult::Success);
 }
 
-FString UJsonFieldData::ToString()
+FString UJsonFieldData::ToString() const
 {
 	FString outStr;
 	TSharedRef<TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<TCHAR>::Create(&outStr);
@@ -664,7 +662,7 @@ FString UJsonFieldData::ToString()
 	return outStr;
 }
 
-bool UJsonFieldData::HasField(const FString& key)
+bool UJsonFieldData::HasField(const FString& key) const
 {
 	return Data->HasField(key);
 }

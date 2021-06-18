@@ -67,7 +67,7 @@ private:
 	* @param	key				Object key
 	* @param	value			Object value
 	*/
-	void WriteObject(TSharedRef<TJsonWriter<TCHAR>> writer, FString key, FJsonValue* value);
+	static void WriteObject(TSharedRef<TJsonWriter<TCHAR>> writer, FString key, FJsonValue* value);
 
 public:
 	/************************************************************************/
@@ -112,7 +112,7 @@ public:
 	* Get the JSON object as a string.
 	*/
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "JSON To String", CompactNodeTitle = "->", Keywords = "cast text convert serialize"), Category = "JSON")
-	FString ToString();
+	FString ToString() const;
 
 	/**
 	* Checks if a field exists in the JSON object
@@ -122,7 +122,7 @@ public:
 	* @return	True if the field exists
 	*/
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Check Field Exists"), Category = "JSON")
-	bool HasField(const FString& key);
+	bool HasField(const FString& key) const;
 
 	/**
 	* Adds the supplied string to the post data, under the given key
@@ -187,7 +187,7 @@ public:
 	* @return	The object itself
 	*/
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Add String Array Field"), Category = "JSON")
-	UJsonFieldData* SetStringArray(const FString& key, const TArray<FString> data);
+	UJsonFieldData* SetStringArray(const FString& key, const TArray<FString>& data);
 
 	/**
 	* Adds the supplied boolean array to the post data, under the given key
@@ -198,7 +198,7 @@ public:
 	* @return	The object itself
 	*/
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Add Boolean Array Field"), Category = "JSON")
-	UJsonFieldData* SetBoolArray(const FString& key, const TArray<bool> data);
+	UJsonFieldData* SetBoolArray(const FString& key, const TArray<bool>& data);
 
 	/**
 	* Adds the supplied float array to the post data, under the given key
@@ -209,7 +209,7 @@ public:
 	* @return	The object itself
 	*/
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Add Float Array Field"), Category = "JSON")
-	UJsonFieldData* SetFloatArray(const FString& key, const TArray<float> data);
+	UJsonFieldData* SetFloatArray(const FString& key, const TArray<float>& data);
 
 	/**
 	* Adds the supplied integer array to the post data, under the given key
@@ -220,13 +220,13 @@ public:
 	* @return	The object itself
 	*/
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Add Integer Array Field"), Category = "JSON")
-	UJsonFieldData* SetIntArray(const FString& key, const TArray<int32> data);
+	UJsonFieldData* SetIntArray(const FString& key, const TArray<int32>& data);
 
 	/**
 	* Adds null array to the post data, under the given key, with the given number of nulls
 	*
 	* @param	key						Key
-	* @param	data					Array
+	* @param	length					Number of null entries
 	*
 	* @return	The object itself
 	*/
@@ -248,12 +248,12 @@ public:
 	* Adds the supplied object array to the post data, under the given key
 	*
 	* @param	key						Key
-	* @param	objectData				Array of object data
+	* @param	arrayData				Array of object data
 	*
 	* @return	The object itself
 	*/
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Add Object Array Field"), Category = "JSON")
-	UJsonFieldData* SetObjectArray(const FString& key, const TArray<UJsonFieldData*> arrayData);
+	UJsonFieldData* SetObjectArray(const FString& key, const TArray<UJsonFieldData*>& arrayData);
 
 	/**
 	* Tries to get a string from the field data by key, returns the string when successful
@@ -379,12 +379,10 @@ public:
 	/**
 	* Gets the keys from the supplied object
 	*
-	* @param	key						Key
-	*
 	* @return	Array of keys
 	*/
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Object Keys"), Category = "JSON")
-	TArray<FString> GetObjectKeys();
+	TArray<FString> GetObjectKeys() const;
 
 	/**
 	* Sets the fields from the supplied JSON string

@@ -5,8 +5,7 @@ IMPLEMENT_MODULE(JSONQueryModule, JSONQuery);
 #define LOCTEXT_NAMESPACE "JSONQuery"
 
 JSONQueryModule::JSONQueryModule()
-{
-}
+{}
 
 void JSONQueryModule::StartupModule()
 {
